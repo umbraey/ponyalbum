@@ -1,0 +1,476 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ponyalbum</title>
+    <style>
+        @property --card-grad-start {
+            syntax: '<color>';
+            initial-value: #98989a;
+        }
+        @property --card-grad-end {
+            syntax: '<color>';
+            initial-value: #190372;
+        }
+
+        :root {
+            /* 页面背景 */
+            --bg-body: rgb(5, 41, 53);            /* body 整体页面背景 */
+            --bg-album: rgba(2, 20, 26, 0.6);     /* .album 图鉴区域背景 */
+            --bg-navbar: rgb(0, 8, 10);           /* .navbar 导航栏背景 */
+
+            /* 卡片 */
+            --card-grad-start: #98989a;           /* .card/.modal 渐变起始色 */
+            --card-grad-end: #190372;             /* .card/.modal 渐变结束色 */
+            --card-shadow: rgba(0, 0, 0, 0.8);    /* .card 默认投影 */
+
+            /* 聚焦时的边框 */
+            --accent: rgb(43, 223, 223);           /* hover 描边 / 输入框聚焦边框 */
+            --hover-glow: rgba(34, 144, 159, 0.5); /* .card:hover 外层青色光晕 */
+            --border-default: #1f6f8b;             /* 输入框 / 按钮默认边框 */
+
+            /* 文字 */
+            --text-primary: #fff;                    /* 卡片名字 / 标题 / 输入文字（白） */
+            --placeholder: rgba(255, 255, 255, 0.5); /* 输入框占位提示文字 */
+
+            /* 半透明面板 */
+            --panel-bg: rgba(255, 255, 255, 0.1);       /* 输入框 / 按钮半透明背景 */
+            --panel-bg-hover: rgba(255, 255, 255, 0.2); /* 聚焦 / 悬停时的背景 */
+        }
+
+        body{
+            margin: 0;
+            transition: background-color 2s ease;
+            /* 背景 */
+            background-color: var(--bg-body);
+            background-image: linear-gradient(rgba(5, 41, 53, 0.62), rgba(5, 41, 53, 0.62)), url("background_day.png");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            /* 背景结束 */
+        }
+        .album{
+            /* width: 100vh; */
+            min-height: 100vh;
+            width: 80%;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            column-gap: 30px;
+            row-gap: 50px;
+            padding: 30px;
+            background-color: var(--bg-album);
+            justify-items: center;
+            transition: background-color 2s ease;
+        }
+
+
+
+
+        /* 卡片样式 */
+        .card{
+            width: 280px;
+            height: 325px;
+            background: linear-gradient(135deg,var(--card-grad-start),var(--card-grad-end));
+            border-radius: 60px;
+            box-shadow: 0 10px 50px var(--card-shadow);
+            
+            transition: transform 0.5s ease-out, box-shadow 0.5s ease-out, background-color 2s ease;
+            display: flex;
+            /* 卡片名字（位置） */
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 25px;
+        }
+
+        /* 卡片名字（样式） */
+        .card h3{
+            color: var(--text-primary);
+            font-style: italic;
+            font-family: 'Segoe Script', 'Comic Sans MS', cursive;
+            margin: 0;
+            font-size: 20px;
+            transition: color 2s ease;
+        }
+
+        /* 卡片名字（human） */
+        .card h3 span{
+            display: block;
+            font-style: normal;
+            font-size: 14px;
+            opacity: 0.75;
+            margin-top: 3px;
+        }
+
+        /* 卡片聚焦时的悬浮状态 */
+        .card:hover{
+            transform: scale(1.05);
+            box-shadow: 0 10px 50px var(--hover-glow),0 0 0 3px var(--accent);
+
+        }
+
+        /* 卡片点击状态 */
+        .card:active{
+            transform: scale(1);
+        }
+
+        /* 卡片图片位置，大小 */
+        .card img {
+            flex: none;
+            width: 100%;
+            height: 250px;             /* 固定图片区域高度，所有卡片位置统一 */
+            object-fit: contain;
+            align-self: center;
+        }
+
+        /* 卡片样式结束 */
+
+        /* 导航栏样式 */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            background-color: var(--bg-navbar);
+            height: 80px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background-color 2s ease;
+        }
+
+        .navbar-title {
+            color: var(--text-primary);
+            font-size: 24px;
+            font-weight: bold;
+            transition: color 2s ease;
+        }
+
+        /* 搜索框样式 */
+        .search-box {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            width: 300px;
+            padding: 10px 20px;
+            border: 2px solid var(--border-default);
+            border-radius: 30px;
+            background-color: var(--panel-bg);
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: background-color 2s ease, color 2s ease, border-color 2s ease;
+        }
+
+        .search-box input::placeholder {
+            color: var(--placeholder);
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+            background-color: var(--panel-bg-hover);
+        }
+        .search-box button {
+            margin-left: 14px;
+            padding: 10px 20px;
+            border: 2px solid var(--border-default);
+            border-radius: 30px;
+            background-color: var(--panel-bg);
+            color: var(--text-primary);
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 2s ease, color 2s ease, border-color 2s ease;
+        }
+
+        .search-box button:hover {
+            background-color: var(--panel-bg-hover);
+            border-color: var(--accent);
+        }
+
+
+        /* 昼夜切换开关样式 */
+        .theme-switcher {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        span {
+            font-size: 18px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-default);
+            border-radius: 26px;
+            transition: background-color 0.3s;
+        }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text-primary);
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .switch input:checked + .slider {
+            background-color: var(--accent);
+        }
+
+        .switch input:checked + .slider::before {
+            transform: translateX(26px);
+        }
+        /* 昼夜切换开关结束 */
+
+        /* 白天模式 */
+        body.day {
+            --bg-body: rgba(255, 255, 255, 0.75);
+            --bg-album: rgba(255, 255, 255, 0.55);
+            --bg-navbar: rgba(255, 255, 255, 0.75);
+
+            --card-grad-start: #ffffff;
+            --card-grad-end: #ff9d45;
+            --card-shadow: rgba(120, 70, 20, 0.25);
+
+            --accent: rgb(255, 140, 66);
+            --hover-glow: rgba(255, 150, 80, 0.45);
+            --border-default: #f0b27a;
+
+            --text-primary: #333;
+            --placeholder: rgba(0, 0, 0, 0.4);
+            --close-color: #555;
+
+            --panel-bg: rgba(255, 255, 255, 0.5);
+            --panel-bg-hover: rgba(255, 255, 255, 0.8);
+            --overlay-bg: rgba(0, 0, 0, 0.45);
+
+            background-image: url("background_day.png");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        /* 白天模式结束 */
+
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <div class="navbar">
+        <div class="navbar-title">Pony Album</div>
+        <div class="theme-switcher">
+            <span>🌙</span>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider"></span>
+            </label>
+            <span>☀️</span>
+        </div>
+        <div class="search-box">
+            <input type="text" id="search" placeholder="搜索小马的名字...">
+            <button id="btn">搜索</button>
+        </div>
+    </div>
+    <!-- 导航栏结束 -->
+
+
+    <div class="album">
+
+        <div class="card" data-id="1">
+            <img src="IMGP_2503559.._cutout.png" alt="">
+            <h3>Twilight Sparkle</h3>
+        </div>
+
+        <div class="card" data-id="2">
+            <img src="IMGP_2174758.._cutout.png" alt="">
+            <h3>Rainbow Dash</h3>
+        </div>
+
+        <div class="card" data-id="3">
+            <img src="IMGP_3639988.._cutout.png" alt="">
+            <h3>Applejack</h3>
+        </div>
+
+        <div class="card" data-id="4">
+            <img src="IMGP_3501029.._cutout.png" alt="">
+            <h3>Fluttershy</h3>
+        </div>
+
+        <div class="card" data-id="5">
+            <img src="IMGP_3423499.._cutout.png" alt="">
+            <h3>Pinkie Pie</h3>
+        </div>
+
+        <div class="card" data-id="6">
+            <img src="IMGP_3499460.._cutout.svg" alt="">
+            <h3>Rarity</h3>
+        </div>
+
+        <div class="card" data-id="7">
+            <img src="IMGP_3509444.._cutout.png" alt="">
+            <h3>Starlight Glimmer</h3>
+        </div>
+
+        <div class="card" data-id="8">
+            <img src="IMGP_2184959.._cutout.png" alt="">
+            <h3>Sunset Shimmer</h3>
+        </div>
+
+        <div class="card" data-id="9">
+            <img src="IMGP_773283.._cutout.png" alt="">
+            <h3>Princess Cadance</h3>
+        </div>
+
+        <div class="card" data-id="10">
+            <img src="IMGP_936529.._cutout.png" alt="">
+            <h3>Shining Armor</h3>
+        </div>
+
+        <div class="card" data-id="11">
+            <img src="IMGP_1626150.._cutout.png" alt="">
+            <h3>Princess Celestia</h3>
+        </div>
+
+        <div class="card" data-id="12">
+            <img src="IMGP_2331237.._cutout.png" alt="">
+            <h3>Princess Luna</h3>
+        </div>
+
+        <div class="card" data-id="1*">
+            <img src="IMGP_3028389.._cutout.png" alt="">
+            <h3>Twilight Sparkle <span>(Human)</span></h3>
+        </div>
+
+        <div class="card" data-id="2*">
+            <img src="IMGP_573476.._cutout.png" alt="">
+            <h3>Rainbow Dash <span>(Human)</span></h3>
+        </div>
+
+        <div class="card" data-id="3*">
+            <img src="IMGP_394122.._cutout.png" alt="">
+            <h3>Applejack <span>(Human)</span></h3>
+        </div>
+
+        <div class="card" data-id="4*">
+            <img src="IMGP_2768148.._cutout.png" alt="">
+            <h3>Fluttershy <span>(Human)</span></h3>
+        </div>
+
+        <div class="card" data-id="5*">
+            <img src="IMGP_1106296.._cutout.png" alt="">
+            <h3>Pinkie Pie <span>(Human)</span></h3>
+        </div>
+
+        <div class="card" data-id="6*">
+            <img src="IMGP_1449953.._cutout.png" alt="">
+            <h3>Rarity <span>(Human)</span></h3>
+        </div>
+
+        <div class="card" data-id="7*">
+            <img src="IMGP_1698546.._cutout.png" alt="">
+            <h3>Starlight Glimmer <span>(Human)</span></h3>
+        </div>
+
+        <div class="card" data-id="8*">
+            <img src="IMGP_3655878.._cutout.svg" alt="">
+            <h3>Sunset Shimmer <span>(Human)</span></h3>
+        </div>
+
+        <div class="card" data-id="9*">
+            <img src="IMGP_984740.._cutout.png" alt="">
+            <h3>Princess Cadance <span>(Human)</span></h3>
+        </div>
+
+        <div class="card" data-id="10*">
+            <img src="IMGP_1098518.._cutout.png" alt="">
+            <h3>Shining Armor <span>(Human)</span></h3>
+        </div>
+
+        <div class="card" data-id="11*">
+            <img src="IMGP_2829354.._cutout.png" alt="">
+            <h3>Princess Celestia <span>(Human)</span></h3>
+        </div>
+
+        <div class="card" data-id="12*">
+            <img src="IMGP_2829332.._cutout.png" alt="">
+            <h3>Princess Luna <span>(Human)</span></h3>
+        </div>
+
+    </div>    
+    <script>
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(function(card) {
+            card.addEventListener('click', function() {
+                const id = card.getAttribute('data-id');
+                window.location.href = 'detail.html?id=' + encodeURIComponent(id);
+            });
+        });
+
+        const themeToggle = document.getElementById('theme-toggle');
+
+        if (localStorage.getItem('theme') === 'day') {
+            document.body.classList.add('day');
+            themeToggle.checked = true;
+        }
+
+        themeToggle.addEventListener('change', function() {
+            document.body.classList.toggle('day', themeToggle.checked);
+            localStorage.setItem('theme', themeToggle.checked ? 'day' : 'night');
+        });
+
+        // 搜索功能
+        const search = document.getElementById('search');
+        const btn = document.getElementById('btn');
+
+        function doSearch(){
+            const s = search.value.trim().toLowerCase();
+            cards.forEach(function(card){
+                const se = card.querySelector('h3').textContent.toLowerCase();
+                if(s&&se.includes(s)){
+                    card.classList.add('search');
+                    }
+                    else{
+                        card.classList.remove('search');
+                    }
+                    const match = document.querySelector('.card.search');
+                    if (match) {
+                        match.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+            })  
+        };
+        search.addEventListener('keyup',function(e){if(e.key==="Enter")doSearch();});
+        btn.addEventListener('click',doSearch);
+
+
+
+    </script>
+
+
+</body>
+</html>
