@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pony Character Detail</title>
+    <style>
+        @property --card-grad-start {
+            syntax: '<color>';
+            inherits: true;
+            initial-value: #98989a;
+        }
+        @property --card-grad-end {
+            syntax: '<color>';
+            inherits: true;
+            initial-value: #190372;
+        }
+
+        :root {
+            --bg-body: rgb(5, 41, 53);
+            --bg-navbar: rgba(0, 8, 10, 0.82);
+            --card-grad-start: #98989a;
+            --card-grad-end: #190372;
+            --card-shadow: rgba(0, 0, 0, 0.8);
+            --accent: rgb(43, 223, 223);
+            --hover-glow: rgba(34, 144, 159, 0.5);
+            --text-primary: #fff;
+            --text-secondary: rgba(255, 255, 255, 0.92);
+            --label-bg: rgba(255, 255, 255, 0.16);
+            --label-text: #fff;
+            --panel-bg: rgba(255, 255, 255, 0.12);
+            --panel-bg-hover: rgba(255, 255, 255, 0.22);
+            --border-default: rgba(255, 255, 255, 0.55);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            background-color: var(--bg-body);
+            background-image: linear-gradient(rgba(5, 41, 53, 0.72), rgba(5, 41, 53, 0.72)), url("background_day.png");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            transition: background-color 2s ease-in;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding: 16px 32px;
+            background-color: var(--bg-navbar);
+            backdrop-filter: blur(6px);
+            transition: background-color 2s ease;
+        }
+
+        .back {
+            display: inline-block;
+            padding: 10px 24px;
+            border: 2px solid var(--border-default);
+            border-radius: 30px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.25s ease-out, color 2s ease, border-color 2s ease;
+        }
+
+        .back:hover {
+            background: var(--panel-bg-hover);
+            border-color: var(--accent);
+        }
+
+        .switch-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .switch-group button {
+            padding: 10px 28px;
+            border: 2px solid var(--border-default);
+            border-radius: 30px;
+            background-color: var(--panel-bg);
+            color: var(--text-primary);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.25s ease-out, color 2s ease, border-color 2s ease, background-color 2s ease;
+        }
+
+        .switch-group button:hover {
+            background-color: var(--panel-bg-hover);
+            border-color: var(--accent);
+        }
+
+        .switch-group button.active {
+            background: linear-gradient(135deg, #2a9d9d, #0e4b6b);
+            border-color: var(--accent);
+            box-shadow: 0 0 18px var(--hover-glow);
+            font-weight: bold;
+        }
+
+        .wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 48px 24px 64px;
+        }
+
+        .detail-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 34px;
+            width: min(980px, 94vw);
+            background: linear-gradient(135deg, var(--card-grad-start), var(--card-grad-end));
+            border-radius: 40px;
+            padding: 36px 40px 42px;
+            box-shadow: 0 10px 50px var(--card-shadow), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            transition: background 2s ease, box-shadow 2s ease;
+        }
+
+        .portrait {
+            flex: none;
+            width: 250px;
+            height: 250px;
+            border-radius: 28px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .portrait img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.25s ease;
+        }
+
+        .info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .info h1 {
+            margin: 0 0 18px;
+            color: var(--text-primary);
+            font-family: 'Segoe Script', 'Comic Sans MS', cursive;
+            font-size: 30px;
+            font-style: italic;
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+            transition: color 2s ease;
+        }
+
+        .fade-swap {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        body.day {
+            --bg-body: rgba(255, 255, 255, 0.75);
+            --bg-navbar: rgba(255, 255, 255, 0.82);
+
+            --card-grad-start: #ffffff;
+            --card-grad-end: #ff9d45;
+            --card-shadow: rgba(120, 70, 20, 0.25);
+
+            --accent: rgb(255, 140, 66);
+            --hover-glow: rgba(255, 150, 80, 0.45);
+            --border-default: #f0b27a;
+
+            --text-primary: #333;
+            --text-secondary: rgba(60, 45, 25, 0.92);
+            --label-bg: rgba(255, 140, 66, 0.18);
+            --label-text: #7a4a12;
+
+            --panel-bg: rgba(255, 255, 255, 0.5);
+            --panel-bg-hover: rgba(255, 255, 255, 0.8);
+
+            background-image: url("background_day.png");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        /* 白天模式结束 */
+
+     
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <a class="back" href="magicalbum.html">← 返回图鉴</a>
+        <div class="switch-group">
+            <button id="btn-pony" class="active" onclick="setForm('pony')">MLP</button>
+            <button id="btn-human" onclick="setForm('human')">EQG</button>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <div class="detail-card">
+            <div class="portrait">
+                <img id="char-img" src="" alt="">
+            </div>
+            <div class="info">
+                <h1>
+                    <span id="char-name"></span>
+                </h1>
+                <div id="char-intro"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    if (localStorage.getItem('theme') === 'day') {
+        document.body.classList.add('day');
+    }
+
+    const url = new URL(location.href);
+    const id = url.searchParams.get('id') || '1';
+
+    let name = '';
+    let ponyImg = '';
+    let ponyIntro = '';
+    let humanImg = '';
+    let humanIntro = '';
+
+    switch (id) {
+        case '1':
+        case '1*':
+            name = 'Twilight Sparkle';
+            ponyImg = 'IMGP_2503559.._cutout.png';
+            ponyIntro = '出生于小马国首都坎特洛特，是闪耀盔甲的妹妹，幼年便展现出惊人的魔法天赋。 小马国友谊公主，曾担任小马国统治者、坎特洛特图书馆管理员与塞拉斯蒂娅公主的私人学生。 勤奋好学、严谨认真，略带书卷气的焦虑与完美主义，但对待朋友极其忠诚可靠。 阅读魔法典籍、钻研新魔法、列待办清单、和朋友一起举办读书会。';
+            humanImg = 'IMGP_3028389.._cutout.png';
+            humanIntro = '出生在坎特洛特市的普通家庭，哥哥闪耀盔甲是水晶预科学校的学长。 坎特洛特高中优秀学生，学校图书管理员助理，后成为朋友们公认的“学霸军师”。 聪明认真、责任心强，有点书呆气，偶尔过度紧张，但总能在关键时刻挺身而出。 学习与科学实验、写读书笔记、做实验记录、周末泡图书馆。';
+            break;
+        case '2':
+        case '2*':
+            name = 'Rainbow Dash';
+            ponyImg = 'IMGP_2174758.._cutout.png';
+            ponyIntro = '出生在云中城，是云马家庭的孩子，从小就渴望飞得比谁都快。 闪电天马队的明星队员，同时也是小马镇的天气管理员，负责调配云朵与天气。 自信好胜、勇敢无畏，表面酷酷的，其实对朋友讲义气、内心柔软。 极限飞行、练习新特技、看闪电天马表演、和朋友们比赛谁更快。';
+            humanImg = 'IMGP_573476.._cutout.png';
+            humanIntro = '出生在坎特洛特市，从小好动，是学校里出了名的运动健将。 坎特洛特高中足球队与田径队主力，常代表学校参加市际比赛。 酷炫洒脱、争强好胜，嘴上爱逞强，实际上非常看重团队和朋友。 足球、滑板、极限运动、摇滚音乐，还梦想成为职业运动员。';
+            break;
+        case '3':
+        case '3*':
+            name = 'Applejack';
+            ponyImg = 'IMGP_3639988.._cutout.png';
+            ponyIntro = '出生在小马镇的甜苹果园，从小在苹果园里长大，继承了家族农场。 甜苹果园农场主，负责种植与收获苹果、制作苹果制品，是镇上公认的“实诚人”。 诚实勤劳、脚踏实地，性格倔强不服输，但心地善良、乐于助人。 种苹果、烤苹果派、套索表演、和家人团聚的温馨时光。';
+            humanImg = 'IMGP_394122.._cutout.png';
+            humanIntro = '出生在坎特洛特郊外的苹果农场，家里经营着果园和农产品小店。 坎特洛特高中学生，课余时间帮家里打理果园，周末在农贸市场摆摊。 诚实坦率、踏实肯干，说话直来直去，是朋友眼中最可靠的大姐头。 园艺、烘焙苹果派、骑马、乡村音乐与户外劳动。';
+            break;
+        case '4':
+        case '4*':
+            name = 'Fluttershy';
+            ponyImg = 'IMGP_3501029.._cutout.png';
+            ponyIntro = '出生在云中城，性格自幼文静，后来搬到小马镇生活。 小马镇的动物护理员，经营动物庇护小屋，照顾各种受伤或无人照看的小动物。 温柔害羞、轻声细语，表面怯懦，遇到朋友和动物受欺负时会爆发出惊人的勇气。 照顾小动物、照料花园、听小鸟唱歌、和蝴蝶做朋友。';
+            humanImg = 'IMGP_2768148.._cutout.png';
+            humanIntro = '出生在坎特洛特市，从小安静内向，最喜欢和邻居家的小动物待在一起。 坎特洛特高中学生，市动物救助站的长期志愿者，负责照顾流浪猫狗。 腼腆温柔、善解人意，话不多但观察力强，关键时刻总能安抚大家。 动物摄影、园艺、烘焙小饼干、给小动物织毛衣。';
+            break;
+        case '5':
+        case '5*':
+            name = 'Pinkie Pie';
+            ponyImg = 'IMGP_3423499.._cutout.png';
+            ponyIntro = '出生在偏远的岩石农场，童年较孤独，搬到小马镇后彻底放飞自我。 糖块屋甜品店的糕点师兼派对策划师，小马镇首席欢乐制造机。 活泼开朗、古灵精怪，永远乐观，能用不可思议的方式让所有人都开心起来。 开派对、做甜点、讲冷笑话、即兴蹦跳和恶作剧。';
+            humanImg = 'IMGP_1106296.._cutout.png';
+            humanIntro = '出生在坎特洛特市郊的糖果店家庭，从小在甜甜的香气里长大。 坎特洛特高中学生，课余在自家糖果店打工，兼职校园活动总策划。 热情似火、脑回路清奇，永远精力充沛，是全班的气氛担当。 策划惊喜派对、自制甜点、跳舞、收集有趣的小玩意儿。';
+            break;
+        case '6':
+        case '6*':
+            name = 'Rarity';
+            ponyImg = 'IMGP_3499460.._cutout.svg';
+            ponyIntro = '出生在小马镇一个普通家庭，从小就对时尚与美学有着敏锐直觉。 小马镇旋转木马精品屋的时装设计师，为全镇乃至王室的庆典设计华服。 优雅讲究、追求完美，带一点戏剧化的小傲娇，实则慷慨大方、乐于分享。 设计服装、缝纫与配饰搭配、淘宝石、参加上流社交舞会。';
+            humanImg = 'IMGP_1449953.._cutout.png';
+            humanIntro = '出生在坎特洛特市，父母经营着一家裁缝店，她从小就在布料堆里长大。 坎特洛特高中学生，经营自己的线上定制时装小店，为校园舞会设计礼服。 优雅有品味、追求精致，爱美但不肤浅，对朋友慷慨又细心。 时尚设计、化妆造型、逛古着店、为朋友量身定制穿搭。';
+            break;
+        case '7':
+        case '7*':
+            name = 'Starlight Glimmer';
+            ponyImg = 'IMGP_3509444.._cutout.png';
+            ponyIntro = '出生在小马国一个偏远小镇，童年因朋友离别而对友谊产生误解，走上弯路。 友谊学园的辅导员，也是暮光闪闪的学生，帮助众多小马学会友谊的真谛。 聪慧敏锐、独立思考，曾固执偏激，如今温和体贴，偶尔仍会自责过去。 研究高级魔法、策划有趣的活动、帮助朋友解决难题、旅行。';
+            humanImg = 'IMGP_1698546.._cutout.png';
+            humanIntro = '出生在坎特洛特市，是转学生，刚来学校时习惯独来独往。 坎特洛特高中学生，科学社团骨干，常帮同学补习功课。 聪明独立、有点小倔强，熟悉之后非常热心，喜欢用脑洞解决问题。 科学实验、解谜游戏、研究机器人、周末和朋友去科技馆。';
+            break;
+        case '8':
+        case '8*':
+            name = 'Sunset Shimmer';
+            ponyImg = 'IMGP_2184959.._cutout.png';
+            ponyIntro = '出生在坎特洛特，曾是塞拉斯蒂娅公主最看重的学生，后因急于求成而走错路。 小马国曾经的“问题学生”，浪子回头后成为暮光闪闪的挚友，游走于人类世界守护友谊。 要强好胜、行动力强，表面锋芒毕露，内心渴望被认可，如今真诚而热情。 钻研魔法、弹奏音乐、组织跨世界冒险、帮助迷茫的朋友。';
+            humanImg = 'IMGP_3655878.._cutout.svg';
+            humanIntro = '出生在坎特洛特市，曾是学校里的风云人物，因为误会与朋友们闹翻过。 坎特洛特高中学生，校园乐队“彩虹乐队”的主唱兼吉他手。 酷飒洒脱、讲义气，经历过迷茫后变得沉稳，现在是最可靠的朋友之一。 弹吉他、写歌、摇滚乐、组织校园音乐节、滑滑板。';
+            break;
+        case '9':
+        case '9*':
+            name = 'Princess Cadance';
+            ponyImg = 'IMGP_773283.._cutout.png';
+            ponyIntro = '出生在水晶帝国，幼年曾被派往坎特洛特担任小暮光的保姆，与王室结缘。 水晶帝国的爱之公主，与丈夫闪耀盔甲共同守护水晶帝国，主持水晶庆典。 温柔亲切、善解人意，充满母性的爱心，是化解矛盾的一把好手。 跳舞、策划水晶庆典、照顾小马驹、和闪耀盔甲共度时光。';
+            humanImg = 'IMGP_984740.._cutout.png';
+            humanIntro = '出生在水晶市的富裕家庭，从小接受良好教育，气质出众。 水晶预科学校学生会主席，是全校公认的模范学姐。 亲切大方、成熟稳重，善于调解同学间的矛盾，领导力十足。 舞蹈、组织校园活动、古典音乐、和闪耀盔甲一起参加舞会。';
+            break;
+        case '10':
+        case '10*':
+            name = 'Shining Armor';
+            ponyImg = 'IMGP_936529.._cutout.png';
+            ponyIntro = '出生在坎特洛特，暮光闪闪的哥哥，从小立志保护家人与小马国。 水晶帝国皇家护卫队队长、水晶王子，负责帝国安全与防线。 勇敢忠诚、正气凛然，有点一本正经，但护妹护妻时格外温柔。 军事训练、护卫战术演练、下棋、和家人一起度假。';
+            humanImg = 'IMGP_1098518.._cutout.png';
+            humanIntro = '出生在坎特洛特市，暮光的哥哥，是妹妹眼中的完美学长。 水晶预科学校学生会副主席、篮球队队长，也是卡丹丝学姐的男友。 正直可靠、沉稳有担当，运动细胞发达，偶尔有点小严肃。 篮球、健身、露营、给妹妹当人生导师。';
+            break;
+        case '11':
+        case '11*':
+            name = 'Princess Celestia';
+            ponyImg = 'IMGP_1626150.._cutout.png';
+            ponyIntro = '诞生于小马国远古时代，与妹妹露娜共同开创了小马国的黄金岁月。 小马国至高统治者、日之公主，负责升起太阳，并亲自教导有天赋的学生。 睿智慈祥、宽容仁厚，目光长远，善于给年轻小马成长的空间。 品茶、欣赏艺术与音乐、教导学生、与妹妹共赏黄昏。';
+            humanImg = 'IMGP_2829354.._cutout.png';
+            humanIntro = '出生在坎特洛特市的教师世家，从小立志投身教育。 坎特洛特高中校长，深受学生爱戴，是全校的定海神针。 睿智温和、循循善诱，威严中带着慈爱，总能洞察学生的困惑。 园艺、古典音乐、收藏画作、给优秀学生写信鼓励。';
+            break;
+        case '12':
+        case '12*':
+            name = 'Princess Luna';
+            ponyImg = 'IMGP_2331237.._cutout.png';
+            ponyIntro = '诞生于小马国远古时代，塞拉斯蒂娅的妹妹，曾因孤独化作梦魇之月，后重归正道。 小马国夜之公主，掌管月亮与梦境，守护小马们安眠的夜晚。 威严内敛、沉静神秘，经历过黑暗后格外珍视友谊，声音低沉而庄重。 守护梦境、观星望月、研究夜空魔法、与姐姐一起治理国家。';
+            humanImg = 'IMGP_2829332.._cutout.png';
+            humanIntro = '出生在坎特洛特市的教师世家，是校长塞拉斯蒂娅的妹妹。 坎特洛特高中副校长，负责纪律与校园安全，是学生眼中“又敬又怕”的存在。 冷静威严、不苟言笑，其实非常关心学生，只是表达方式比较内敛。 天文学、观星摄影、弹钢琴、深夜在校园天文台巡查。';
+            break;
+        default:
+            name = 'Twilight Sparkle';
+            ponyImg = 'IMGP_2503559.._cutout.png';
+            ponyIntro = '出生于小马国首都坎特洛特，是闪耀盔甲的妹妹，幼年便展现出惊人的魔法天赋。 小马国友谊公主，曾担任小马国统治者、坎特洛特图书馆管理员与塞拉斯蒂娅公主的私人学生。 勤奋好学、严谨认真，略带书卷气的焦虑与完美主义，但对待朋友极其忠诚可靠。 阅读魔法典籍、钻研新魔法、列待办清单、和朋友一起举办读书会。';
+            humanImg = 'IMGP_3028389.._cutout.png';
+            humanIntro = '出生在坎特洛特市的普通家庭，哥哥闪耀盔甲是水晶预科学校的学长。 坎特洛特高中优秀学生，学校图书管理员助理，后成为朋友们公认的“学霸军师”。 聪明认真、责任心强，有点书呆气，偶尔过度紧张，但总能在关键时刻挺身而出。 学习与科学实验、写读书笔记、做实验记录、周末泡图书馆。';
+            break;
+    }
+
+    let form = 'pony';
+    if (id.includes('*')) {
+        form = 'human';
+    }
+
+    function show() {
+        if (form === 'human') {
+            document.getElementById('char-img').src = humanImg;
+            document.getElementById('char-name').textContent = name;
+            document.getElementById('char-intro').innerHTML = '<p>' + humanIntro + '</p>';
+        } else {
+            document.getElementById('char-img').src = ponyImg;
+            document.getElementById('char-name').textContent = name;
+            document.getElementById('char-intro').innerHTML = '<p>' + ponyIntro + '</p>';
+        }
+    }
+ 
+    // 切换按钮
+    function setForm(f) {
+        form = f;
+        show();
+
+        document.getElementById('btn-pony').classList.remove('active');
+        document.getElementById('btn-human').classList.remove('active');
+        document.getElementById('btn-' + f).classList.add('active');
+    }
+
+    show();
+</script>
+</body>
+</html>
